@@ -13,6 +13,7 @@ const pool = require('./functions/pool.js')
 const userRouter = require('./routers/user')
 const didKeyPairRouter = require('./routers/did')
 const connectionRouter = require('./routers/connection')
+const credentialsRouter = require('./routers/credentials')
 // const forecast = require('./utils/forecast')
 // const geocode = require('./utils/geocode')
 
@@ -34,6 +35,7 @@ app.use(express.static(publicDirectoryPath))
 app.use(userRouter)
 app.use(didKeyPairRouter)
 app.use(connectionRouter)
+app.use(credentialsRouter)
 
 // app.use(express.bodyParser());
 
