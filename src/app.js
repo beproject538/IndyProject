@@ -51,8 +51,9 @@ app.get('/pool', urlencodedParser,async (req, res) => {
             })
     }
 
-    const poolHandle = await pool.poolCreation(req.query.poolName)
-    res.send({poolName: req.query.poolName, poolHandle})
+    pool.poolHandle = await pool.poolCreation(req.query.poolName)
+    console.log('POOL HANDLE-----------------', pool.poolHandle)
+    res.send({poolName: req.query.poolName, poolHandle: pool.poolHandle})
 
     // try {
     //     if(!req.query.poolName){
