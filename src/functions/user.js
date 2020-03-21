@@ -146,7 +146,7 @@ const connectionRequest = async (did, recipientDid, userWalletHandle, role=null)
     const [newDid, newKey] = await indy.createAndStoreMyDid(userWalletHandle, {})
 
     console.log('POOL HANDLE,', pool.poolHandle)
-    await pool.sendNym(pool.poolHandle, userWalletHandle, did, newDid, newKey, role)
+    // await pool.sendNym(pool.poolHandle, userWalletHandle, did, newDid, newKey, role)
     
     return {
         did,
@@ -172,7 +172,7 @@ const connectionResponse = async (did, recipientDid, userWalletHandle) => {
 
 const connectionAcknowledgement = async(userWalletHandle, did, newDid, newKey, role=null) => {
 
-    await pool.sendNym(pool.poolHandle, userWalletHandle, did, newDid, newKey, role)
+    // await pool.sendNym(pool.poolHandle, userWalletHandle, did, newDid, newKey, role)
 
     return {
         newDid, 

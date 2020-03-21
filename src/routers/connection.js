@@ -10,6 +10,7 @@ const ConnectionOffer = require('../models/connectionOffer')
 const DidKeyPair = require('../models/didKeyPair')
 const ConnectionRequest = require('../models/connectionRequest')
 const ConnectionResponse = require('../models/connectionResponse')
+const pool = require('../functions/pool')
 
 router.post('/sendConnectionOffer', auth,async(req, res) => {
 
@@ -100,26 +101,30 @@ router.post('/sendConnectionRequest', auth,async(req, res) => {
     const requestorDid = await DidKeyPair.findOne({owner: req.user._id, public: true})
     const myDid = requestorDid.did
     console.log('MY DID', myDid)
-    const recipient = await ConnectionOffer.findOne({recipientDid: myDid, accepted: false})
-    console.log('Recipient', recipient)
-    const recipientDid = recipient.did
+    // const recipient = await ConnectionOffer.findOne({recipientDid: myDid, accepted: false})
+    // console.log('Recipient', recipient)
+    const recipientDid = req.body.recipientDid
 
     const connectionRequest = await ConnectionRequest.findOne({owner: req.user._id, did: myDid, recipientDid})
     if(connectionRequest){
         return res.send({error: 'Connection Request Already Sent'})
-    }else
+    }
 
 
     // const offer = await ConnectionOffer.updateOne({did:recipientDid, recipientDid: myDid, owner: recipient.owner, accepted: false}, {accepted: true})
-    await ConnectionOffer.updateOne({did:recipientDid, recipientDid: myDid, owner: recipient.owner, accepted: false}, {accepted: true})
+    let offer = await ConnectionOffer.updateOne({did:recipientDid, recipientDid: myDid, accepted: false}, {accepted: true})
 
 
     console.log('Offer',offer)
     console.log(req.user.userWalletHandle)
-    const Request = await userFuncs.connectionRequest(myDid, recipientDid, req.user.userWalletHandle)
+    let Request = await userFuncs.connectionRequest(myDid, recipientDid, req.user.userWalletHandle)
     try {
         const connectionRequest = new ConnectionRequest({
-            ...Request,
+            did: Request.did,
+            newDid: Request.newDid,
+            newKey: Request.newKey,
+            ip: Request.ip,
+            recipientDid: Request.recipientDid,
             owner: req.user._id
         })
         await connectionRequest.save()
@@ -134,7 +139,9 @@ router.post('/sendConnectionRequest', auth,async(req, res) => {
 
 
         await didKeyPair.save()
-        res.send({connectionRequest, offer})
+
+        let nymInfo = await pool.sendNym(pool.poolHandle, req.user.userWalletHandle, myDid, Request.newDid, Request.newKey)
+        res.send({connectionRequest, offer, msg: nymInfo.msg})
     } catch (e) {
         res.send(e)
     }
@@ -156,10 +163,10 @@ router.get('/sentConnectionRequests', auth, async(req, res) => {
 
 router.get('/pendingConnectionRequest', auth,async(req, res) => {
 
-    const me = await DidKeyPair.findOne({owner: req.user._id, public: true})
-    const myDid = me.did
+    let me = await DidKeyPair.findOne({owner: req.user._id, public: true})
+    let myDid = me.did
 
-    const pendingRequests = await ConnectionRequest.find({recipientDid: myDid, responded: false})
+    let pendingRequests = await ConnectionRequest.find({recipientDid: myDid, responded: false})
     if(!pendingRequests){
         return res.send({error: 'No pending requests'})
     }
@@ -193,27 +200,45 @@ router.patch('/rejectConnectionRequest', auth, async(req, res) => {
 
 router.post('/sendConnectionResponse', auth, async(req, res) => {
 
-    const me = await DidKeyPair.findOne({owner: req.user._id, public: true})
-    const myDid = me.did
+    let me = await DidKeyPair.findOne({owner: req.user._id, public: true})
+    let myDid = me.did
 
-    const recipient = await ConnectionRequest.findOne({recipientDid: myDid, responded: false})
-    const recipientDid = recipient.did
+    // const recipient = await ConnectionRequest.findOne({recipientDid: myDid, responded: false})
+    let recipientDid = req.body.recipientDid
 
     const response = await ConnectionResponse.findOne({owner: req.user._id, did: myDid, recipientDid})
     if(response){
         return res.send({error: 'Connection Response Already Sent'})
     }
 
+
+    const request = await ConnectionRequest.updateOne({did: recipientDid, recipientDid: myDid, responded: false}, {responded: true})
+
     try {
 
         const Response = await userFuncs.connectionResponse(myDid, recipientDid, req.user.userWalletHandle)
 
         const connectionResponse = new ConnectionResponse({
-            ...Response,
+            did:myDid,
+            newDid: Response.newDid,
+            newKey: Response.newKey,
+            ip: Response.ip,
+            recipientDid: Response.recipientDid,
             owner: req.user._id
         })
 
         await connectionResponse.save()
+
+        let didKeyPair = new DidKeyPair({
+            id: req.user.userWalletHandle,
+            did: Response.newDid,
+            verkey: Response.newKey,
+            metadata: req.body.info,
+            owner: req.user._id,
+            public: false
+        })
+
+        await didKeyPair.save()
         res.send(connectionResponse)
     } catch (e) {
         res.send(e)
@@ -255,6 +280,18 @@ router.get('/pendingConnectionResponse', auth, async(req, res) => {
     } catch (e) {
         res.send(e)
     }
+})
+
+
+router.post('/sendAcknowledgement', auth, async(req, res) => {
+
+    let me = await DidKeyPair.findOne({owner: req.user._id, public: true})
+    
+    let recipientDid = req.body.recipientDid
+
+    let response = await ConnectionResponse({did: recipientDid, recipientDid: me.did, responded: false})
+
+    let nymInfo = await pool.sendNym(pool.poolHandle, me.did,)
 })
 
 

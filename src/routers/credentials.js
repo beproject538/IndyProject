@@ -2,7 +2,7 @@ const express = require('express')
 const router = new express.Router()
 const auth = require('../middleware/auth')
 const User = require('../models/user')
-const CredentialSchema = require('../models/schema')
+const CredentialSchema = require('../models/credentialSchema')
 const credentialsFunc = require('../functions/credentials')
 const pool = require('../functions/pool')
 const DidKeyPair = require('../models/didKeyPair')
@@ -47,3 +47,25 @@ router.get('/getSchema', async(req, res) => {
         res.send(e)
     }
 })
+
+router.post('/createCredDef', auth, async(req, res) => {
+
+    let did = await DidKeyPair.findOne({owner: req.user._id, public: true})
+
+    let schemaInfo = await CredentialSchema.findOne({$or:[{name: req.body.name}, {id: req.body.id}]})
+    // if(req.body.name){
+    //     let schemaInfo = await CredentialSchema.findOne({name})
+    // }
+    // if()
+    let [,schema] = await credentialsFunc.getSchema(pool.poolHandle, did.did, schemaInfo.id)
+    let credDefInfo = await credentialsFunc.createCredDef(req.user.userWalletHandle, did.did, schema)
+
+    try {
+        res.send(credDefInfo)
+    } catch (e) {
+        res.send(e)
+    }
+    
+})
+
+module.exports = router
