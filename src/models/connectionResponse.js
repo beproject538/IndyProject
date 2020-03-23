@@ -41,6 +41,8 @@ const connectionResponseSchema = new mongoose.Schema({
         default: false,
         required: true
     }
+}, {
+    timestamps: true
 })
 
 const ConnectionResponse = mongoose.model('ConnectionResponse', connectionResponseSchema)

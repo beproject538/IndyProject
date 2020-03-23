@@ -1,42 +1,36 @@
 const mongoose = require('mongoose')
 const validator = require('validator')
 
-const didKeyPairSchema = mongoose.Schema({
-    id: {
-        type: String,
-        required: true
-    },
+const didInfoSchema = new mongoose.Schema({
     did: {
         type: String,
-
         required: true
     },
     verkey: {
         type: String,
         required: true
     },
-    metadata: {
-        type: String
+    fromToKey: {
+        type: String,
+        required: true
     },
     owner: {
         type: mongoose.Schema.Types.ObjectId,
         required: true,
         ref: 'User'
-    },
-    public: {
-        type: Boolean,
+    }, 
+    recipientDid: {
+        type: String,
         required: true
     },
-    forDid: {
+    role: {
         type: String,
-        default: 'me',
-        require: true
+        required: true
     }
 }, {
     timestamps: true
 })
 
-const DidKeyPair = mongoose.model('DidKeyPair', didKeyPairSchema)
+const DidInfo = mongoose.model('DidInfo', didInfoSchema)
 
-module.exports = DidKeyPair
-
+module.exports = DidInfo

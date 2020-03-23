@@ -45,17 +45,17 @@ const connectionRequestSchema = new mongoose.Schema({
         type: Boolean,
         default: false,
         required: true
-    },
-    rejected: {
-        type: Boolean,
-        default: false,
-        required: true
-    },
-    reverted: {
-        type: Boolean,
-        default: false,
-        required: true
     }
+    // accepted: {
+    //     type: Boolean,
+    //     default: false,
+    //     required: true
+    // }
+    // reverted: {
+    //     type: Boolean,
+    //     default: false,
+    //     required: true
+    // }
 },{
     timestamps: true
 })

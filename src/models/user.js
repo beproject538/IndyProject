@@ -56,8 +56,9 @@ const userSchema = new mongoose.Schema({
         default: -1
     },
     role : {
-        type: mongoose.Schema.Types.Mixed,
-        default: null  
+        type: String,
+        default: 'User',
+        required: true
     },
     tokens: [{
         token: {
