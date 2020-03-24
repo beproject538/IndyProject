@@ -133,7 +133,7 @@ router.post('/sendConnectionRequest', auth,async(req, res) => {
 
 
     // const offer = await ConnectionOffer.updateOne({did:recipientDid, recipientDid: myDid, owner: recipient.owner, accepted: false}, {accepted: true})
-    // let offer = await ConnectionOffer.updateOne({did:recipientDid, recipientDid: myDid, accepted: false}, {accepted: true})
+    let offer = await ConnectionOffer.updateOne({did:recipientDid, recipientDid: myDid, accepted: false}, {accepted: true})
 
 
     console.log('Offer',offer)

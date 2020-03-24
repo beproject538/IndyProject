@@ -34,6 +34,8 @@ const connectionOfferSchema = new mongoose.Schema({
     },
     accepted: {
         type: Boolean
+        default: false
+        required: true
     },
     
     reverted: {
