@@ -33,8 +33,8 @@ const connectionOfferSchema = new mongoose.Schema({
         ref: 'User'
     },
     accepted: {
-        type: Boolean
-        default: false
+        type: Boolean,
+        default: false,
         required: true
     },
     
