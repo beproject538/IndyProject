@@ -4,7 +4,7 @@ const indy = require('indy-sdk')
 let poolHandle = 0;
 const poolCreation = async (poolName) => {
     let poolConfig = {
-        "genesis_txn": '/home/tejas/Desktop/INDY_PROJECT/genesis-pool-config-file.txn'
+        "genesis_txn": '/home/ubuntu/IndyProjectT/src/genesis-pool-config-file.txn'
     }
 
     try {
